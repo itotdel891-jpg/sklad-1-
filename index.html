@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Склад — учёт (шт)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f8; }
+    .container { max-width:700px; margin:30px auto; background:#fff; padding:20px; border-radius:10px; }
+    h2, h3 { text-align:center; margin-top:0; }
+    .item { display:flex; justify-content:space-between; align-items:center; margin:6px 0; }
+    .item span { max-width:70%; }
+    input { width:90px; padding:6px; text-align:center; }
+    button { width:100%; padding:14px; margin-top:15px; background:#0a7cff; color:#fff; border:none; cursor:pointer; border-radius:6px; }
+    .total { margin-top:10px; font-weight:bold; text-align:right; }
+    hr { margin:25px 0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Склад — учёт продукции (шт)</h2>
+  <div id="products"></div>
+  <div class="total">Итого продукция, шт: <span id="totalProducts">0</span></div>
+
+  <hr>
+
+  <h3>Учёт картонной тары (шт)</h3>
+  <div id="tara"></div>
+  <div class="total">Итого тара, шт: <span id="totalTara">0</span></div>
+
+  <button onclick="send()">Отправить</button>
+  <p id="status"></p>
+</div>
+
+<script>
+// 🔴 ВСТАВЬ СВОЙ GOOGLE WEB APP URL
+const URL = "ВСТАВЬ_URL_WEB_APP";
+
+/* ===== ПРОДУКЦИЯ ===== */
+const products = [
+  'Сэндвич "Классический"',
+  'Сэндвич "С курицей"',
+  'Сэндвич "Сырный Соус"',
+  'Сэндвич "PICNIC"',
+  'Сэндвич "KEBAB"',
+  'Хот-Дог',
+  'Гамбургер с котлетой',
+  'Сэндвич "STRIPS" с сырным соусом',
+  'Сэндвич "Мехико"',
+  'Пицца "PEPPERONI"',
+  'Пицца "CHICKEN"',
+  'Пицца "SPICY"',
+  'Крылышки',
+  'Burrito стрипсы',
+  'Булочка Ярославка',
+  'Багет пшеничный',
+  'Ролл',
+  'Лаваш',
+  'Тостовый хлеб',
+  'Батон нарезной',
+  'Батон к чаю',
+  'Батон отрубной',
+  'Батон "Особый"',
+  'Булочки для фуда БУРГЕР',
+  'Булочки для фуда Хот-Дог'
+];
+
+/* ===== КАРТОННАЯ ТАРА ===== */
+const taraItems = [
+  'Коробка',
+];
+
+/* РЕНДЕР */
+const pDiv = document.getElementById('products');
+products.forEach((n,i)=>{
+  pDiv.innerHTML += `
+    <div class="item">
+      <span>${n}</span>
+      <input type="number" min="0" value="0" id="p${i}" oninput="calc()">
+    </div>`;
+});
+
+const tDiv = document.getElementById('tara');
+taraItems.forEach((n,i)=>{
+  tDiv.innerHTML += `
+    <div class="item">
+      <span>${n}</span>
+      <input type="number" min="0" value="0" id="t${i}" oninput="calc()">
+    </div>`;
+});
+
+/* ПОДСЧЁТ */
+function calc(){
+  let pSum = 0, tSum = 0;
+  products.forEach((_,i)=> pSum += Number(document.getElementById('p'+i).value||0));
+  taraItems.forEach((_,i)=> tSum += Number(document.getElementById('t'+i).value||0));
+  totalProducts.innerText = pSum;
+  totalTara.innerText = tSum;
+}
+
+/* ОТПРАВКА */
+function send(){
+  const productRows = products.map((n,i)=>({
+    type: 'product',
+    name: n,
+    qty: Number(document.getElementById('p'+i).value||0)
+  })).filter(r=>r.qty>0);
+
+  const taraRows = taraItems.map((n,i)=>({
+    type: 'tara',
+    name: n,
+    qty: Number(document.getElementById('t'+i).value||0)
+  })).filter(r=>r.qty>0);
+
+  fetch(URL,{
+    method:'POST',
+    body: JSON.stringify({
+      products: productRows,
+      tara: taraRows
+    })
+  }).then(()=>status.innerText='Данные отправлены ✔');
+}
+</script>
+</body>
+</html>
