@@ -28,19 +28,6 @@
   <h3>Учёт картонной тары (шт)</h3>
   <div id="tara"></div>
   <div class="total">Итого тара, шт: <span id="totalTara">0</span></div>
-<hr>
-
-<div style="margin-top:15px;">
-  <label style="display:block; margin-bottom:8px;">
-    <input type="checkbox" id="responsibleCheck">
-    Ответственный подтвердил данные
-  </label>
-
-  <label style="display:block;">
-    <input type="checkbox" id="managerCheck">
-    Проверил заведующий складом
-  </label>
-</div>
 
   <button onclick="send()">Отправить</button>
   <p id="status"></p>
@@ -113,23 +100,7 @@ function calc(){
 }
 
 /* ОТПРАВКА */
-funfunction send(){
-
-  const status = document.getElementById('status');
-  
-  const responsible = document.getElementById('responsibleCheck').checked;
-  const manager = document.getElementById('managerCheck').checked;
-
-  if(!responsible){
-    status.innerText = '❌ Нет подтверждения ответственного';
-    return;
-  }
-
-  if(!manager){
-    status.innerText = '❌ Нет подтверждения заведующего складом';
-    return;
-  }
-
+function send(){
   const productRows = products.map((n,i)=>({
     type: 'product',
     name: n,
@@ -146,19 +117,13 @@ funfunction send(){
     method:'POST',
     body: JSON.stringify({
       products: productRows,
-      tara: taraRows,
-      responsibleConfirmed: true,
-      managerConfirmed: true
+      tara: taraRows
     })
-  }).then(()=>{
-    status.innerText='Данные отправлены ✔';
-  });
+  }).then(()=>status.innerText='Данные отправлены ✔');
 }
 </script>
 </body>
 
 </html>
-
-
 
 
